@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Aplikasi Surat Izin - Lengkap</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Tombol Hamburger untuk HP -->
+<button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+    ☰
+</button>
+
+<div class="container" id="container">
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>📚 BASIR Rekap</h2>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <button onclick="showMenu('formMenu'); closeSidebarOnMobile()">📝 Buat Surat</button>
+        <button onclick="showMenu('dataMenu'); closeSidebarOnMobile()">📋 Data Surat</button>
+        <button onclick="showMenu('rekapMenu'); closeSidebarOnMobile()">📊 Rekap Bulanan</button>
+        <hr style="margin: 15px 0; border-color: #334155;">
+        <button onclick="exportToExcel(); closeSidebarOnMobile()">📎 Export Excel</button>
+        <button onclick="backupData(); closeSidebarOnMobile()">💾 Backup JSON</button>
+        <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreData(this)">
+        <button onclick="document.getElementById('restoreFile').click(); closeSidebarOnMobile()">📂 Restore Backup</button>
+    </div>
+
+    <div class="content" id="content">
+        <!-- Overlay untuk menutup sidebar saat klik di luar (HP) -->
+        <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- FORM -->
+        <div id="formMenu" class="menu active">
+            <h1>Buat Surat Izin</h1>
+            <form id="formSurat">
+                <label>Nama Siswa / Santri</label>
+                <input type="text" id="nama" required>
+
+                <label>Kelas</label>
+                <input type="text" id="kelas" required>
+
+                <label>Jenis Surat</label>
+                <select id="jenis">
+                    <option>Izin</option>
+                    <option>Sakit</option>
+                    <option>Alpha</option>
+                    <option>Keluar</option>
+                </select>
+
+                <label>Tanggal</label>
+                <input type="date" id="tanggal" required>
+
+                <label>Keterangan</label>
+                <textarea id="keterangan" placeholder="Contoh: Acara keluarga, sakit demam, dll."></textarea>
+
+                <label>Nama Ustadz/Wali Kelas</label>
+                <input type="text" id="guru" placeholder="Contoh: Ustadz Ahmad">
+
+                <div class="btn-group">
+                    <button type="submit">💾 Simpan</button>
+                    <button type="button" onclick="cetakSurat()">🖨️ Cetak Surat</button>
+                </div>
+            </form>
+
+            <div class="preview">
+                <div id="suratPreview">
+                    <div class="kop">
+                        <h2>PONPES MIFTAHUL KHOIR</h2>
+                        <p>Pandan - Omben - Sampang - Madura</p>
+                    </div>
+                    <hr>
+                    <h3 class="judul">SURAT KETERANGAN</h3>
+                    <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
+                    <table class="tabel-surat preview-tabel">
+                        <tr><th>Nama</th><th>:</th><td id="pNama">-</td></tr>
+                        <tr><th>Kelas</th><th>:</th><td id="pKelas">-</td></tr>
+                        <tr><th>Jenis</th><th>:</th><td id="pJenis">-</td></tr>
+                        <tr><th>Tanggal</th><th>:</th><td id="pTanggal">-</td></tr>
+                    </table>
+                    <p class="isi-surat"><strong>Keterangan:</strong> <span id="pKeterangan">-</span></p>
+                    <div class="ttd">
+                        <p>Hormat kami,</p>
+                        <br><br><br>
+                        <p id="pGuru">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA SURAT -->
+        <div id="dataMenu" class="menu">
+            <h1>📋 Data Surat</h1>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="hapusSemuaData()" style="background:#dc2626; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">🗑️ Hapus Semua Data</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="dataSuratTable">
+                    <thead>
+                        <tr><th>No</th><th>Nama</th><th>Kelas</th><th>Jenis</th><th>Tanggal</th><th>Keterangan</th><th>Guru</th><th>Aksi</th></tr>
+                    </thead>
+                    <tbody id="dataTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REKAP BULANAN -->
+        <div id="rekapMenu" class="menu">
+            <h1>📊 Rekap Bulanan</h1>
+            <div style="margin-bottom: 15px;">
+                <label>Pilih Bulan & Tahun: </label>
+                <input type="month" id="bulanRekap" onchange="loadRekap()">
+                <button onclick="loadRekap()" style="margin-left: 10px; padding:8px 15px;">Tampilkan</button>
+                <button onclick="exportRekapToExcel()" style="margin-left: 10px; padding:8px 15px; background:#10b981;">Export Rekap Excel</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table id="rekapTable">
+                    <thead>
+                        <tr><th>No</th><th>Nama</th><th>Kelas</th><th>✅ Izin</th><th>🤒 Sakit</th><th>❌ Alpha</th><th>🚪 Keluar</th><th>Total</th></tr>
+                    </thead>
+                    <tbody id="rekapTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
